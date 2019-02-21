@@ -1,0 +1,33 @@
+---
+resources:
+  - name: api-student-2
+    type: git
+    source:
+      uri: https://github.com/abecsy/api-student-2.git
+      branch: master
+    check_every: 10s
+jobs:
+- name: unit-test
+  plan:
+  - get: api-student-2
+    trigger: true
+  - task: mvn-test
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: maven
+      inputs:
+      - name: api-student-2
+      caches:
+      - path: api-student-2/m2   
+      run:
+        path: bash
+        args:
+        - -c
+        - |
+          set -e
+          cd api-student-2
+          rm -rf ~/.m2
+          ln -fs $(pwd)/m2 ~/.m2
